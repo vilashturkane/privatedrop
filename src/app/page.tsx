@@ -51,19 +51,18 @@ export default function LandingPage() {
     <div className="flex flex-1 flex-col">
       {/* Hero */}
       <section className="relative overflow-hidden">
-        {/* Subtle gradient background */}
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-purple-50/80 via-white to-white" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-purple-50/80 via-background to-background dark:from-purple-950/20" />
 
         <div className="relative mx-auto max-w-6xl px-6 pb-20 pt-28 text-center">
-          <div className="mx-auto mb-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-purple-100">
-            <ShieldCheck className="h-6 w-6 text-purple-600" />
+          <div className="mx-auto mb-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-purple-100 dark:bg-purple-900/40">
+            <ShieldCheck className="h-6 w-6 text-purple-600 dark:text-purple-400" />
           </div>
 
-          <h1 className="mx-auto max-w-2xl text-4xl font-semibold leading-tight tracking-tight text-gray-900 sm:text-5xl">
+          <h1 className="mx-auto max-w-2xl text-4xl font-semibold leading-tight tracking-tight text-foreground sm:text-5xl">
             Private Airdrop Verification
           </h1>
 
-          <p className="mx-auto mt-4 max-w-lg text-lg leading-relaxed text-gray-500">
+          <p className="mx-auto mt-4 max-w-lg text-lg leading-relaxed text-muted-foreground">
             Prove eligibility without exposing your wallet.
           </p>
 
@@ -72,7 +71,7 @@ export default function LandingPage() {
               href="/dashboard"
               className={cn(
                 buttonVariants({ size: "lg" }),
-                "gap-2 bg-purple-600 text-white hover:bg-purple-700"
+                "gap-2 bg-purple-600 text-white hover:bg-purple-700 dark:bg-purple-500 dark:hover:bg-purple-600"
               )}
             >
               Connect Lace Wallet
@@ -80,7 +79,7 @@ export default function LandingPage() {
             </Link>
           </div>
 
-          <p className="mt-3 text-xs text-gray-400">
+          <p className="mt-3 text-xs text-muted-foreground">
             Midnight Preprod &middot; Lace Wallet required
           </p>
         </div>
@@ -92,16 +91,16 @@ export default function LandingPage() {
           {features.map(({ icon: Icon, title, description }) => (
             <Card
               key={title}
-              className="border-gray-100 bg-white shadow-none transition-shadow hover:shadow-sm"
+              className="border-border bg-card shadow-none transition-shadow hover:shadow-sm"
             >
               <CardContent className="pt-6">
-                <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-lg bg-purple-50">
-                  <Icon className="h-4 w-4 text-purple-600" />
+                <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-lg bg-purple-50 dark:bg-purple-900/30">
+                  <Icon className="h-4 w-4 text-purple-600 dark:text-purple-400" />
                 </div>
-                <h3 className="text-sm font-semibold text-gray-900">
+                <h3 className="text-sm font-semibold text-foreground">
                   {title}
                 </h3>
-                <p className="mt-1 text-sm leading-relaxed text-gray-500">
+                <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
                   {description}
                 </p>
               </CardContent>
@@ -112,17 +111,17 @@ export default function LandingPage() {
 
       {/* Privacy comparison */}
       <section className="mx-auto w-full max-w-6xl px-6 pb-24">
-        <div className="rounded-2xl border border-gray-100 bg-gray-50/50 p-8 sm:p-10">
-          <h2 className="mb-6 text-center text-lg font-semibold tracking-tight text-gray-900">
+        <div className="rounded-2xl border border-border bg-muted/50 p-8 sm:p-10">
+          <h2 className="mb-6 text-center text-lg font-semibold tracking-tight text-foreground">
             Traditional vs. PrivateDrop
           </h2>
 
           <div className="grid gap-6 sm:grid-cols-2">
             {/* Before */}
-            <div className="rounded-xl border border-gray-200 bg-white p-6">
+            <div className="rounded-xl border border-border bg-card p-6">
               <div className="mb-4 flex items-center gap-2">
-                <Eye className="h-4 w-4 text-gray-400" />
-                <span className="text-sm font-medium text-gray-500">
+                <Eye className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm font-medium text-muted-foreground">
                   Traditional Airdrop
                 </span>
               </div>
@@ -130,9 +129,9 @@ export default function LandingPage() {
                 {comparisonBefore.map((item) => (
                   <li
                     key={item}
-                    className="flex items-start gap-2.5 text-sm text-gray-500"
+                    className="flex items-start gap-2.5 text-sm text-muted-foreground"
                   >
-                    <span className="mt-0.5 text-red-400">✕</span>
+                    <span className="mt-0.5 text-red-400 dark:text-red-500">✕</span>
                     {item}
                   </li>
                 ))}
@@ -140,10 +139,10 @@ export default function LandingPage() {
             </div>
 
             {/* After */}
-            <div className="rounded-xl border border-purple-200 bg-purple-50/50 p-6">
+            <div className="rounded-xl border border-purple-200 bg-purple-50/50 p-6 dark:border-purple-800 dark:bg-purple-950/30">
               <div className="mb-4 flex items-center gap-2">
-                <ShieldCheck className="h-4 w-4 text-purple-600" />
-                <span className="text-sm font-medium text-purple-700">
+                <ShieldCheck className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                <span className="text-sm font-medium text-purple-700 dark:text-purple-300">
                   PrivateDrop
                 </span>
               </div>
@@ -151,9 +150,9 @@ export default function LandingPage() {
                 {comparisonAfter.map((item) => (
                   <li
                     key={item}
-                    className="flex items-start gap-2.5 text-sm text-gray-700"
+                    className="flex items-start gap-2.5 text-sm text-foreground/80"
                   >
-                    <span className="mt-0.5 text-purple-600">✓</span>
+                    <span className="mt-0.5 text-purple-600 dark:text-purple-400">✓</span>
                     {item}
                   </li>
                 ))}

@@ -59,18 +59,18 @@ export default function HistoryPage() {
   if (!isConnected) {
     return (
       <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col items-center justify-center px-6 py-20">
-        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gray-100">
-          <ShieldOff className="h-6 w-6 text-gray-400" />
+        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-muted">
+          <ShieldOff className="h-6 w-6 text-muted-foreground" />
         </div>
-        <h2 className="mt-4 text-lg font-semibold text-gray-900">
+        <h2 className="mt-4 text-lg font-semibold text-foreground">
           Wallet not connected
         </h2>
-        <p className="mt-1 text-sm text-gray-500">
+        <p className="mt-1 text-sm text-muted-foreground">
           Connect your wallet to view proof history.
         </p>
         <Button
           size="sm"
-          className="mt-5 bg-purple-600 text-white hover:bg-purple-700"
+          className="mt-5 bg-purple-600 dark:bg-purple-500 text-white hover:bg-purple-700 dark:hover:bg-purple-600"
           onClick={() => router.push("/dashboard")}
         >
           Go to Dashboard
@@ -84,12 +84,12 @@ export default function HistoryPage() {
       {/* Page header */}
       <div className="mb-10 flex items-end justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-gray-900">
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground">
             Proof History
           </h1>
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm text-muted-foreground">
             Previous zero-knowledge proof attempts.{" "}
-            <span className="text-gray-400">
+            <span className="text-muted-foreground">
               No private data is stored or displayed.
             </span>
           </p>
@@ -99,7 +99,7 @@ export default function HistoryPage() {
           <Button
             variant="ghost"
             size="sm"
-            className="gap-1.5 text-gray-400 hover:text-red-500"
+            className="gap-1.5 text-muted-foreground hover:text-red-500 dark:hover:text-red-400"
             onClick={handleClear}
           >
             <Trash2 className="h-3.5 w-3.5" />
@@ -110,20 +110,20 @@ export default function HistoryPage() {
 
       {/* ── Empty state ────────────────────────────────────────── */}
       {records.length === 0 && (
-        <Card className="border-gray-100 bg-white shadow-none">
+        <Card className="border-border bg-card shadow-none">
           <CardContent className="flex flex-col items-center py-16">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gray-100">
-              <ScrollText className="h-6 w-6 text-gray-300" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-muted">
+              <ScrollText className="h-6 w-6 text-muted-foreground/50" />
             </div>
-            <h3 className="mt-4 text-sm font-semibold text-gray-900">
+            <h3 className="mt-4 text-sm font-semibold text-foreground">
               No proofs yet
             </h3>
-            <p className="mt-1 text-sm text-gray-400">
+            <p className="mt-1 text-sm text-muted-foreground">
               Generate your first eligibility proof to see it here.
             </p>
             <Button
               size="sm"
-              className="mt-5 gap-1.5 bg-purple-600 text-white hover:bg-purple-700"
+              className="mt-5 gap-1.5 bg-purple-600 dark:bg-purple-500 text-white hover:bg-purple-700 dark:hover:bg-purple-600"
               onClick={() => router.push("/verify")}
             >
               Generate Proof
@@ -140,21 +140,21 @@ export default function HistoryPage() {
             <Card
               key={record.id}
               className={cn(
-                "border-gray-100 bg-white shadow-none transition-colors",
+                "border-border bg-card shadow-none transition-colors",
                 record.eligible
-                  ? "hover:border-green-200"
-                  : "hover:border-red-200"
+                  ? "hover:border-green-200 dark:hover:border-green-800"
+                  : "hover:border-red-200 dark:hover:border-red-800"
               )}
             >
               <CardHeader className="pb-2">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-sm font-medium text-gray-900">
+                  <CardTitle className="text-sm font-medium text-foreground">
                     {record.campaign}
                   </CardTitle>
                   {record.eligible ? (
                     <Badge
                       variant="outline"
-                      className="gap-1 border-green-200 bg-green-50 text-green-700"
+                      className="gap-1 border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400"
                     >
                       <CheckCircle2 className="h-3 w-3" />
                       Eligible
@@ -162,38 +162,38 @@ export default function HistoryPage() {
                   ) : (
                     <Badge
                       variant="outline"
-                      className="gap-1 border-red-200 bg-red-50 text-red-600"
+                      className="gap-1 border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400"
                     >
                       <XCircle className="h-3 w-3" />
                       Not Eligible
                     </Badge>
                   )}
                 </div>
-                <CardDescription className="flex items-center gap-1.5 text-xs text-gray-400">
+                <CardDescription className="flex items-center gap-1.5 text-xs text-muted-foreground">
                   <Clock className="h-3 w-3" />
                   {new Date(record.timestamp).toLocaleString()}
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="flex items-center justify-between rounded-lg border border-gray-100 bg-gray-50 px-3 py-2">
+                <div className="flex items-center justify-between rounded-lg border border-border bg-muted px-3 py-2">
                   <div className="flex items-center gap-2">
-                    <ShieldCheck className="h-3.5 w-3.5 text-purple-500" />
-                    <span className="font-mono text-xs text-gray-500">
+                    <ShieldCheck className="h-3.5 w-3.5 text-purple-500 dark:text-purple-400" />
+                    <span className="font-mono text-xs text-muted-foreground">
                       {record.proofHash.slice(0, 24)}…
                     </span>
                   </div>
                   <button
                     onClick={() => handleCopyHash(record)}
-                    className="text-gray-400 transition-colors hover:text-gray-600"
+                    className="text-muted-foreground transition-colors hover:text-foreground/70"
                   >
                     {copiedId === record.id ? (
-                      <Check className="h-3.5 w-3.5 text-green-500" />
+                      <Check className="h-3.5 w-3.5 text-green-500 dark:text-green-400" />
                     ) : (
                       <Copy className="h-3.5 w-3.5" />
                     )}
                   </button>
                 </div>
-                <p className="mt-2 text-xs text-gray-400">
+                <p className="mt-2 text-xs text-muted-foreground">
                   Private inputs were not stored. Only the proof result is
                   recorded.
                 </p>

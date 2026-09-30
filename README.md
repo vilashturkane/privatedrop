@@ -1,8 +1,27 @@
-# PrivateDrop
+# 🛡️ PrivateDrop
 
 **Privacy-preserving Web3 airdrop eligibility checker** built on [Midnight Network](https://midnight.network/).
 
-Users can prove they are eligible for an airdrop **without revealing** their wallet address, token balance, or transaction history — powered by zero-knowledge proofs.
+Prove you qualify for an airdrop **without revealing** your wallet address, token balance, or transaction history — powered by zero-knowledge proofs.
+
+[![Built by Vilash](https://img.shields.io/badge/Built%20by-Vilash-7c3aed?style=flat-square)](https://x.com/web3vilash)
+[![X (Twitter)](https://img.shields.io/badge/@web3vilash-000?style=flat-square&logo=x&logoColor=white)](https://x.com/web3vilash)
+[![GitHub](https://img.shields.io/badge/GitHub-vilashturkane-181717?style=flat-square&logo=github)](https://github.com/vilashturkane)
+
+---
+
+## Why PrivateDrop?
+
+Traditional airdrops force users to expose their wallet data to prove eligibility. PrivateDrop flips this model using zero-knowledge proofs:
+
+| | Traditional Airdrop | PrivateDrop |
+|---|---|---|
+| Wallet Address | ✕ Exposed | ✓ Hidden |
+| Token Balance | ✕ Visible | ✓ Hidden |
+| Transaction History | ✕ Public | ✓ Hidden |
+| Eligibility Result | ✓ Verified | ✓ Verified |
+
+> **One bit of information** — "eligible or not" — is all that gets shared. Everything else stays private.
 
 ---
 
@@ -29,7 +48,16 @@ Users can prove they are eligible for an airdrop **without revealing** their wal
 └─────────────────────────────────────────────────────────┘
 ```
 
-The private token balance **never leaves the browser**. Only the boolean result and a cryptographic proof are emitted.
+---
+
+## Features
+
+- 🔐 **Zero-Knowledge Proofs** — Verify eligibility without leaking private data
+- 👛 **Lace Wallet Integration** — Connect, disconnect, auto-detect with install prompt
+- 🌗 **Dark & Light Mode** — Toggle between themes, respects system preference
+- 📜 **Proof History** — Browse previous verification attempts (no private data stored)
+- 🎭 **Demo Mode** — Explore the full flow without Lace wallet installed
+- ⚡ **Midnight Network** — Built on privacy-first blockchain infrastructure
 
 ---
 
@@ -42,19 +70,17 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+Open [http://localhost:3000](http://localhost:3000)
 
 ---
 
 ## Demo Flow
 
 1. **Landing** → Click "Connect Lace Wallet"
-2. **Dashboard** → See wallet connected status + campaign info → Click "Check Eligibility"
+2. **Dashboard** → See wallet status + campaign info → Click "Check Eligibility"
 3. **Verify** → Observe "Before Proof" (all data hidden) → Click "Generate Private Proof"
-4. **Proof result** → ✓ Eligible appears, but wallet address and balance remain hidden
-5. **History** → See the proof record with hash — no private data stored
-
-> **Note:** The app includes a demo mode when Lace wallet is not installed, so you can explore the full flow without the extension.
+4. **Proof Result** → ✓ Eligible — wallet address and balance remain hidden
+5. **History** → Browse proof records — no private data stored
 
 ---
 
@@ -72,6 +98,15 @@ privatedrop/
 │   └── types/                 # TypeScript interfaces
 └── README.md
 ```
+
+---
+
+## Connect
+
+Built by **[Vilash](https://x.com/web3vilash)**
+
+- 𝕏 [@web3vilash](https://x.com/web3vilash)
+- GitHub [@vilashturkane](https://github.com/vilashturkane)
 
 ---
 
