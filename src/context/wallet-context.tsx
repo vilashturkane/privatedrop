@@ -12,7 +12,7 @@ import type { WalletStatus } from "@/types";
 import {
   connectLaceWallet,
   connectSimulated,
-  detectLaceWallet,
+  waitForLaceWallet,
   disconnectLaceWallet,
   markLaceConnected,
 } from "@/lib/wallet/lace";
@@ -25,14 +25,10 @@ interface WalletContextValue {
   displayAddress: string | null;
   isSimulated: boolean;
   error: string | null;
-  /** Whether the "Lace not found" dialog should be shown */
   showLacePrompt: boolean;
-  /** Try connecting to real Lace wallet */
   connect: () => Promise<void>;
-  /** Explicitly connect in demo/simulation mode */
   connectDemo: () => Promise<void>;
   disconnect: () => void;
-  /** Dismiss the Lace install prompt */
   dismissLacePrompt: () => void;
 }
 
@@ -55,28 +51,34 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
   const [showLacePrompt, setShowLacePrompt] = useState(false);
 
-  const finishConnection = useCallback((walletAddress: string, simulated: boolean) => {
-    markLaceConnected();
-    setAddress(walletAddress);
-    setDisplayAddress(truncateAddress(walletAddress));
-    setIsSimulated(simulated);
-    setStatus("connected");
-    setShowLacePrompt(false);
-  }, []);
+  const finishConnection = useCallback(
+    (walletAddress: string, simulated: boolean) => {
+      markLaceConnected();
+      setAddress(walletAddress);
+      setDisplayAddress(truncateAddress(walletAddress));
+      setIsSimulated(simulated);
+      setStatus("connected");
+      setShowLacePrompt(false);
+    },
+    []
+  );
 
   // Try to connect to real Lace wallet
   const connect = useCallback(async () => {
     setError(null);
+    setStatus("connecting");
 
-    // Check if Lace is available
-    if (!detectLaceWallet()) {
-      // Show the install / demo prompt instead of silently simulating
+    // Wait up to 3 seconds for Lace to inject into the page
+    const found = await waitForLaceWallet(3000);
+
+    if (!found) {
+      // Lace not found after waiting — show install / demo dialog
+      setStatus("disconnected");
       setShowLacePrompt(true);
       return;
     }
 
     // Lace found — connect for real
-    setStatus("connecting");
     try {
       const info = await connectLaceWallet();
       finishConnection(info.address, false);

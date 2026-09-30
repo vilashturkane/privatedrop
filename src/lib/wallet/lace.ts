@@ -9,16 +9,23 @@ interface MnLaceWalletApi {
   address(): Promise<string>;
 }
 
-/** Shape of the injected Lace provider at `window.midnight.mnLace` */
+/** Shape of the injected Lace provider */
 interface MnLaceProvider {
   enable(): Promise<MnLaceWalletApi>;
+  isEnabled?(): Promise<boolean>;
+  name?: string;
 }
 
-/** Augment the global `Window` so TS knows about `window.midnight` */
+/** Augment the global `Window` so TS knows about wallet injection points */
 declare global {
   interface Window {
     midnight?: {
       mnLace?: MnLaceProvider;
+      [key: string]: unknown;
+    };
+    cardano?: {
+      lace?: MnLaceProvider;
+      [key: string]: unknown;
     };
   }
 }
@@ -37,12 +44,56 @@ export interface LaceWalletInfo {
 // ── Detection ───────────────────────────────────────────────────────────────
 
 /**
- * Returns `true` when the Lace wallet for Midnight is detected on the page
- * (i.e. the extension has injected `window.midnight.mnLace`).
+ * Immediately checks if any known Lace injection point exists.
  */
 export function detectLaceWallet(): boolean {
   if (typeof window === "undefined") return false;
-  return !!window.midnight?.mnLace;
+  return !!(window.midnight?.mnLace || window.cardano?.lace);
+}
+
+/**
+ * Resolves the Lace provider from whichever injection point is available.
+ */
+function getProvider(): MnLaceProvider | null {
+  if (typeof window === "undefined") return null;
+  return (window.midnight?.mnLace as MnLaceProvider) ??
+         (window.cardano?.lace as MnLaceProvider) ??
+         null;
+}
+
+/**
+ * Waits for the Lace wallet extension to inject into the page.
+ * Extensions can take 100ms–2s to inject depending on browser load.
+ *
+ * Polls every 200ms for up to `timeoutMs` (default 3000ms).
+ * Returns `true` if found, `false` if timed out.
+ */
+export function waitForLaceWallet(timeoutMs = 3000): Promise<boolean> {
+  return new Promise((resolve) => {
+    // Already available
+    if (detectLaceWallet()) {
+      resolve(true);
+      return;
+    }
+
+    const interval = 200;
+    let elapsed = 0;
+
+    const timer = setInterval(() => {
+      elapsed += interval;
+
+      if (detectLaceWallet()) {
+        clearInterval(timer);
+        resolve(true);
+        return;
+      }
+
+      if (elapsed >= timeoutMs) {
+        clearInterval(timer);
+        resolve(false);
+      }
+    }, interval);
+  });
 }
 
 // ── Real connection ─────────────────────────────────────────────────────────
@@ -52,7 +103,7 @@ export function detectLaceWallet(): boolean {
  * Throws if Lace is not installed or the user rejects the connection.
  */
 export async function connectLaceWallet(): Promise<LaceWalletInfo> {
-  const provider = window.midnight?.mnLace;
+  const provider = getProvider();
   if (!provider) {
     throw new Error(
       "Lace wallet for Midnight is not installed. Please install the extension."
