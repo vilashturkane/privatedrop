@@ -1,69 +1,167 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import Link from "next/link";
+import { buttonVariants } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
+import {
+  ShieldCheck,
+  Eye,
+  EyeOff,
+  Lock,
+  Fingerprint,
+  ArrowRight,
+} from "lucide-react";
+
+const features = [
+  {
+    icon: EyeOff,
+    title: "Zero Knowledge",
+    description:
+      "Prove eligibility without revealing your wallet address, balance, or transaction history.",
+  },
+  {
+    icon: Lock,
+    title: "On-Chain Privacy",
+    description:
+      "Powered by Midnight Network's privacy-preserving smart contracts and ZK circuits.",
+  },
+  {
+    icon: Fingerprint,
+    title: "Verifiable Proofs",
+    description:
+      "Generate cryptographic proofs that anyone can verify but no one can trace back to you.",
+  },
+];
+
+const comparisonBefore = [
+  "Wallet address exposed",
+  "Token balance visible",
+  "Transaction history public",
+];
+
+const comparisonAfter = [
+  "Identity stays private",
+  "Balance never revealed",
+  "No on-chain footprint",
+];
+
+export default function LandingPage() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
+    <div className="flex flex-1 flex-col">
+      {/* Hero */}
+      <section className="relative overflow-hidden">
+        {/* Subtle gradient background */}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-purple-50/80 via-white to-white" />
+
+        <div className="relative mx-auto max-w-6xl px-6 pb-20 pt-28 text-center">
+          <div className="mx-auto mb-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-purple-100">
+            <ShieldCheck className="h-6 w-6 text-purple-600" />
+          </div>
+
+          <h1 className="mx-auto max-w-2xl text-4xl font-semibold leading-tight tracking-tight text-gray-900 sm:text-5xl">
+            Private Airdrop Verification
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+
+          <p className="mx-auto mt-4 max-w-lg text-lg leading-relaxed text-gray-500">
+            Prove eligibility without exposing your wallet.
+          </p>
+
+          <div className="mt-8 flex items-center justify-center gap-3">
+            <Link
+              href="/dashboard"
+              className={cn(
+                buttonVariants({ size: "lg" }),
+                "gap-2 bg-purple-600 text-white hover:bg-purple-700"
+              )}
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+              Connect Lace Wallet
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+
+          <p className="mt-3 text-xs text-gray-400">
+            Midnight Preprod &middot; Lace Wallet required
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </section>
+
+      {/* Features */}
+      <section className="mx-auto w-full max-w-6xl px-6 pb-20">
+        <div className="grid gap-4 sm:grid-cols-3">
+          {features.map(({ icon: Icon, title, description }) => (
+            <Card
+              key={title}
+              className="border-gray-100 bg-white shadow-none transition-shadow hover:shadow-sm"
+            >
+              <CardContent className="pt-6">
+                <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-lg bg-purple-50">
+                  <Icon className="h-4 w-4 text-purple-600" />
+                </div>
+                <h3 className="text-sm font-semibold text-gray-900">
+                  {title}
+                </h3>
+                <p className="mt-1 text-sm leading-relaxed text-gray-500">
+                  {description}
+                </p>
+              </CardContent>
+            </Card>
+          ))}
         </div>
-      </main>
+      </section>
+
+      {/* Privacy comparison */}
+      <section className="mx-auto w-full max-w-6xl px-6 pb-24">
+        <div className="rounded-2xl border border-gray-100 bg-gray-50/50 p-8 sm:p-10">
+          <h2 className="mb-6 text-center text-lg font-semibold tracking-tight text-gray-900">
+            Traditional vs. PrivateDrop
+          </h2>
+
+          <div className="grid gap-6 sm:grid-cols-2">
+            {/* Before */}
+            <div className="rounded-xl border border-gray-200 bg-white p-6">
+              <div className="mb-4 flex items-center gap-2">
+                <Eye className="h-4 w-4 text-gray-400" />
+                <span className="text-sm font-medium text-gray-500">
+                  Traditional Airdrop
+                </span>
+              </div>
+              <ul className="space-y-3">
+                {comparisonBefore.map((item) => (
+                  <li
+                    key={item}
+                    className="flex items-start gap-2.5 text-sm text-gray-500"
+                  >
+                    <span className="mt-0.5 text-red-400">✕</span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* After */}
+            <div className="rounded-xl border border-purple-200 bg-purple-50/50 p-6">
+              <div className="mb-4 flex items-center gap-2">
+                <ShieldCheck className="h-4 w-4 text-purple-600" />
+                <span className="text-sm font-medium text-purple-700">
+                  PrivateDrop
+                </span>
+              </div>
+              <ul className="space-y-3">
+                {comparisonAfter.map((item) => (
+                  <li
+                    key={item}
+                    className="flex items-start gap-2.5 text-sm text-gray-700"
+                  >
+                    <span className="mt-0.5 text-purple-600">✓</span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

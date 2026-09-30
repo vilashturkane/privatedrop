@@ -1,0 +1,51 @@
+// ──────────────────────────────────────────────────────────────────────────────
+// PrivateDrop Eligibility Circuit
+// ──────────────────────────────────────────────────────────────────────────────
+//
+// A Midnight Network Compact contract that verifies whether a user holds
+// enough tokens to qualify for an airdrop — without ever revealing their
+// actual balance.
+//
+// Privacy model:
+//   • `tokenBalance`  — SECRET input. Stays on the prover's machine and is
+//     never transmitted to the network or the verifier. It is consumed only
+//     inside the zero-knowledge circuit.
+//   • `requiredAmount` — PUBLIC input. The minimum token threshold set by the
+//     airdrop campaign. Visible to everyone.
+//   • `eligible`       — PUBLIC output. A boolean the verifier can check
+//     on-chain. `true` when the prover's balance meets the threshold.
+//
+// The verifier learns one bit of information ("eligible or not") and nothing
+// else about the prover's holdings.
+//
+// NOTE: This is a simplified demo circuit for illustration purposes.
+// A production contract would include additional checks such as Merkle-proof
+// membership against a token-state commitment, replay protection (nullifiers),
+// and time-bound validity windows.
+// ──────────────────────────────────────────────────────────────────────────────
+
+circuit EligibilityCheck {
+
+  // ── Private input ────────────────────────────────────────────────────────
+  // The prover's token balance. This value never leaves the local proving
+  // environment — it is used only to evaluate the circuit constraints and
+  // is not included in the generated proof.
+  secret tokenBalance: Field;
+
+  // ── Public inputs ────────────────────────────────────────────────────────
+  // The minimum number of tokens required for airdrop eligibility.
+  // Set by the campaign creator and visible to all participants.
+  public requiredAmount: Field;
+
+  // ── Public output ────────────────────────────────────────────────────────
+  // The result of the eligibility check. `true` if the prover's secret
+  // balance is greater than or equal to the required amount.
+  public eligible: Boolean;
+
+  // ── Constraint ───────────────────────────────────────────────────────────
+  // This is the core privacy guarantee: the circuit enforces that `eligible`
+  // is true if and only if tokenBalance >= requiredAmount.
+  // The verifier can confirm the proof is valid without learning the
+  // underlying tokenBalance.
+  eligible <== greaterThanOrEqual(tokenBalance, requiredAmount);
+}
