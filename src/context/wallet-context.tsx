@@ -25,8 +25,15 @@ interface WalletContextValue {
   displayAddress: string | null;
   isSimulated: boolean;
   error: string | null;
+  /** Whether the "Lace not found" dialog should be shown */
+  showLacePrompt: boolean;
+  /** Try connecting to real Lace wallet */
   connect: () => Promise<void>;
+  /** Explicitly connect in demo/simulation mode */
+  connectDemo: () => Promise<void>;
   disconnect: () => void;
+  /** Dismiss the Lace install prompt */
+  dismissLacePrompt: () => void;
 }
 
 const WalletContext = createContext<WalletContextValue | null>(null);
@@ -46,35 +53,57 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   const [displayAddress, setDisplayAddress] = useState<string | null>(null);
   const [isSimulated, setIsSimulated] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showLacePrompt, setShowLacePrompt] = useState(false);
 
+  const finishConnection = useCallback((walletAddress: string, simulated: boolean) => {
+    markLaceConnected();
+    setAddress(walletAddress);
+    setDisplayAddress(truncateAddress(walletAddress));
+    setIsSimulated(simulated);
+    setStatus("connected");
+    setShowLacePrompt(false);
+  }, []);
+
+  // Try to connect to real Lace wallet
   const connect = useCallback(async () => {
-    setStatus("connecting");
     setError(null);
 
+    // Check if Lace is available
+    if (!detectLaceWallet()) {
+      // Show the install / demo prompt instead of silently simulating
+      setShowLacePrompt(true);
+      return;
+    }
+
+    // Lace found — connect for real
+    setStatus("connecting");
     try {
-      let walletAddress: string;
-
-      if (detectLaceWallet()) {
-        const info = await connectLaceWallet();
-        walletAddress = info.address;
-        setIsSimulated(false);
-      } else {
-        const info = await connectSimulated();
-        walletAddress = info.address;
-        setIsSimulated(true);
-      }
-
-      markLaceConnected();
-      setAddress(walletAddress);
-      setDisplayAddress(truncateAddress(walletAddress));
-      setStatus("connected");
+      const info = await connectLaceWallet();
+      finishConnection(info.address, false);
     } catch (err) {
       setStatus("error");
       setError(
-        err instanceof Error ? err.message : "Failed to connect wallet"
+        err instanceof Error ? err.message : "Failed to connect Lace wallet"
       );
     }
-  }, []);
+  }, [finishConnection]);
+
+  // Explicitly enter demo / simulation mode
+  const connectDemo = useCallback(async () => {
+    setStatus("connecting");
+    setError(null);
+    setShowLacePrompt(false);
+
+    try {
+      const info = await connectSimulated();
+      finishConnection(info.address, true);
+    } catch (err) {
+      setStatus("error");
+      setError(
+        err instanceof Error ? err.message : "Failed to start demo mode"
+      );
+    }
+  }, [finishConnection]);
 
   const disconnect = useCallback(() => {
     disconnectLaceWallet();
@@ -83,6 +112,11 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     setDisplayAddress(null);
     setIsSimulated(false);
     setError(null);
+    setShowLacePrompt(false);
+  }, []);
+
+  const dismissLacePrompt = useCallback(() => {
+    setShowLacePrompt(false);
   }, []);
 
   return (
@@ -93,8 +127,11 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         displayAddress,
         isSimulated,
         error,
+        showLacePrompt,
         connect,
+        connectDemo,
         disconnect,
+        dismissLacePrompt,
       }}
     >
       {children}
