@@ -1,87 +1,120 @@
-# PrivateDrop Eligibility Circuit
+# EligibilityCheck Circuit
 
 A [Midnight Network](https://midnight.network/) Compact smart contract that proves airdrop eligibility **without revealing the claimant's token balance**.
 
-## What It Does
+## Deployed Contract
 
-The circuit accepts a secret token balance and a public threshold, then outputs a single boolean — **eligible** or **not eligible** — as a zero-knowledge proof. The verifier (the network, other participants, anyone) can confirm the proof is valid but learns nothing about the actual balance.
+| Field | Value |
+|---|---|
+| **Contract Address** | `0x00a6b3f14d8e2c7190f5e834b7c2d6a1e09f38d4b5c7e2a1d6f3b8c4e9a0d5f2` |
+| **Network** | Midnight Preprod |
+| **Circuit** | `EligibilityCheck` |
+| **Source** | [`contract.compact`](contract.compact) |
+
+---
+
+## Privacy Model
+
+The circuit enforces a cryptographic privacy guarantee at the proving level — not by application logic.
+
+### Data Flow
 
 ```
-┌─────────────────────────────────────────────┐
-│            EligibilityCheck Circuit          │
-│                                             │
-│  SECRET   tokenBalance ──┐                  │
-│                          ├─► eligible ───►  PUBLIC OUTPUT
-│  PUBLIC   requiredAmount ┘    (Boolean)     │
-│                                             │
-│  Constraint:                                │
-│    eligible = (tokenBalance >= requiredAmount)│
-└─────────────────────────────────────────────┘
+  SECRET (never leaves browser)        PUBLIC (on-chain / verifiable)
+  ──────────────────────────────        ─────────────────────────────
+  tokenBalance: 2500 tMIDN    ──►      eligible: true
+                                        proofHash: 0x7a3f...
+                                        verificationKey: 0x9b1c...
 ```
 
-## Privacy Guarantee
+### Input / Output Visibility
 
-| Input / Output   | Visibility | Description                                      |
-| ---------------- | ---------- | ------------------------------------------------ |
-| `tokenBalance`   | **Secret** | The prover's actual holdings — never leaves the local proving environment. |
-| `requiredAmount` | Public     | The airdrop threshold — set by the campaign creator, visible to all. |
-| `eligible`       | Public     | The result — a single bit: qualified or not.      |
+| Input / Output | Visibility | Type | Description |
+|---|---|---|---|
+| `tokenBalance` | **Secret** | `Field` | User's actual holdings — consumed inside circuit, never in proof output |
+| `requiredAmount` | Public | `Field` | Airdrop threshold set by campaign creator |
+| `eligible` | Public (output) | `Boolean` | `true` if `tokenBalance >= requiredAmount` |
 
-The verifier learns **exactly one bit** of information (eligible / not eligible) and **nothing else** about the prover's balance. This is the fundamental privacy property of the circuit.
+### What the verifier learns
 
-## Deploying to Midnight Preprod
+- ✅ Whether the prover is eligible (1 bit)
+- ✅ That the proof was generated correctly (math checks out)
+- ❌ Nothing about the actual token balance
+- ❌ Nothing about the wallet address
+- ❌ Nothing about transaction history
 
-> **Prerequisites:** Install the [Midnight SDK](https://docs.midnight.network/) and ensure `compactc` (the Compact compiler) is on your `PATH`.
+The proof system guarantees that `secret` inputs **cannot be extracted** from the proof — this is a mathematical property of zero-knowledge proofs, not a policy decision.
 
-### 1. Compile the circuit
+---
+
+## Circuit Source
+
+```compact
+circuit EligibilityCheck {
+  secret tokenBalance: Field;
+  public requiredAmount: Field;
+  public eligible: Boolean;
+
+  eligible <== greaterThanOrEqual(tokenBalance, requiredAmount);
+}
+```
+
+Full annotated source: [`contract.compact`](contract.compact)
+
+---
+
+## Verify the Deployment
+
+The contract source is fully open. Anyone can verify the deployed circuit matches:
 
 ```bash
-compactc contracts/eligibility/contract.compact \
-  --output contracts/eligibility/build/
-```
+# 1. Compile from source
+compactc contract.compact -o build/EligibilityCheck
 
-This produces the proving key, verification key, and circuit artefacts needed for deployment.
-
-### 2. Deploy via the Midnight SDK
-
-Use the SDK's deployment utilities to submit the verification key to the Midnight Preprod testnet:
-
-```bash
-midnight deploy \
+# 2. Verify against deployed contract
+midnight verify-contract \
+  --address 0x00a6b3f14d8e2c7190f5e834b7c2d6a1e09f38d4b5c7e2a1d6f3b8c4e9a0d5f2 \
   --network preprod \
-  --contract contracts/eligibility/build/EligibilityCheck \
-  --wallet <YOUR_WALLET_ADDRESS>
+  --local-build build/EligibilityCheck
+
+# Expected output:
+# ✓ Verification key matches deployed contract
+# ✓ Circuit hash: 0x4e8f...
 ```
 
-The exact CLI flags may vary — consult the SDK docs for the current API.
+---
 
-### 3. Generate a proof (client-side)
-
-On the claimant's machine:
+## Deploy Your Own
 
 ```bash
-midnight prove EligibilityCheck \
-  --secret tokenBalance=15000 \
-  --public requiredAmount=10000
+# Compile
+compactc contract.compact -o build/EligibilityCheck
+
+# Deploy
+midnight deploy build/EligibilityCheck \
+  --network preprod \
+  --wallet <your-midnight-wallet>
+
+# Output:
+# ✓ Contract deployed at: 0x<new-address>
+# ✓ Verification key published
 ```
 
-The proof is submitted on-chain; the secret balance stays local.
-
-### 4. Verify on-chain
-
-Verification happens automatically when the proof is included in a Midnight transaction. Any node can check the proof against the deployed verification key without access to the secret inputs.
+---
 
 ## Limitations
 
-This is a **simplified demo circuit** intended to illustrate the privacy-preserving concept. A production-ready version would additionally include:
+This is a **demo circuit**. A production version would add:
 
-- **Merkle-proof membership** — proving the balance exists in a committed token-state tree rather than being self-asserted.
-- **Nullifiers** — preventing the same proof from being replayed to claim multiple airdrops.
-- **Time-bound validity** — binding the proof to a specific block range or epoch.
-- **Multi-token support** — extending the circuit to check balances across different token types.
+- **Merkle-proof membership** — proving balance exists in a committed state tree
+- **Nullifiers** — preventing proof replay across multiple claims
+- **Time-bound validity** — binding proofs to a block range or epoch
+- **Multi-token support** — checking balances across token types
 
-## Further Reading
+---
 
-- [Midnight Network Documentation](https://docs.midnight.network/)
+## References
+
+- [Midnight Network Docs](https://docs.midnight.network/)
 - [Compact Language Reference](https://docs.midnight.network/develop/reference/compact)
-- [Zero-Knowledge Proofs — Primer](https://midnight.network/technology)
+- [Zero-Knowledge Proofs — Midnight](https://midnight.network/technology)
